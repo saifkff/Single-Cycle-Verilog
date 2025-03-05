@@ -12,7 +12,7 @@ module top_tb;
   wire[31:0] data1,data2,outdata_store,read_data,outputt;
   wire select,branch_taken;
   wire [1:0] sel_bit_mux;
-    wire addr, sub, sllr, sltr, sltur, xorr, srlr, srar, orr, andr,addi, slli, slti, sltui, xori, srli, srai, ori, andi,sw, sh, sb, lb, lh, lw, lbu, lhu,jal, jalr,beq, bne, blt, bge, bltu, bgeu,add, sll, slt, sltu, xorrr, srl, sra, orrr, andd,out0, out1, out2, out3,wenb, rs2_imm_sel,lui_enb, auipc_wenb, load_enb, jal_enb, branch_enb, in_to_pr, i0, i1, i2, i3, i4, i5, i6, i7, i8;
+    wire addr, sub, sllr, sltr, sltur, xorr, srlr, srar, orr, andr,addi, slli, slti, sltui, xori, srli, srai, ori, andi,sw, sh, sb, lb, lh, lw, lbu, lhu,jal, jalr,jalreverse,beq, bne, blt, bge, bltu, bgeu,add, sll, slt, sltu, xorrr, srl, sra, orrr, andd,out0, out1, out2, out3,wenb, rs2_imm_sel,lui_enb, auipc_wenb, load_enb, jal_enb, branch_enb, in_to_pr, i0, i1, i2, i3, i4, i5, i6, i7, i8;
   
   fetch uut(
     .clk(clk),
@@ -88,6 +88,7 @@ module top_tb;
     .lhu(lhu),
     .jal(jal),
     .jalr(jalr),
+   .jalreverse(jalreverse),
     .beq(beq),
     .bne(bne),
     .blt(blt),

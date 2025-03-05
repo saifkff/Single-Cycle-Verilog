@@ -66,7 +66,7 @@ module control_unit (
     output addr, sub, sllr, sltr, sltur, xorr, srlr, srar, orr, andr,
     output addi, slli, slti, sltui, xori, srli, srai, ori, andi,
     output sw, sh, sb, lb, lh, lw, lbu, lhu,
-    output jal, jalr,
+    output jal, jalr,jalreverse,
     output beq, bne, blt, bge, bltu, bgeu,
     output add, sll, slt, sltu, xorrr, srl, sra, orrr, andd,
     output out0, out1, out2, out3,
@@ -118,6 +118,7 @@ module control_unit (
     assign load_enb = (lb) | (lh) | (lw) | (lbu) | (lhu);
     //Jump instructions
     assign jal = (i0)&(i1)&(~i2)&(i3)&(i4)&(~i5)&(~i6)&(~i7)&(~i8);
+  	assign jalreverse = (i0)&(i1)&(~i2)&(i3)&(i4)&(i5)&(i6)&(i7)&(i8);
     assign jalr = (i0)&(~i1)&(~i2)&(i3)&(i4)&(~i5)&(~i6)&(~i7)&(~i8);
     // enable for jal
     assign jal_enb = (jal) | (jalr);
@@ -151,12 +152,12 @@ module control_unit (
 
     // write enable and rs2 immediate selection
     assign wenb = (lw) | (jal) | (lh) | (lb) | (addr) | (sub) | (srar) | (sllr) | (orr) | (andr) | (sltur) | (sltr) | (srai) | (xorr) | (srlr) | (andi) | (auipc_wenb) | (ori) | (xori) | (sltui) | (srli) | (slli) | (addi) | (slti) | (sb) | (sh) | (sw) | (lbu) | (lhu) | (jalr) | (lui_enb);
-    assign rs2_imm_sel = (lui_enb) | (jal) | (lb) | (lh) |(addi) | (sh) | (sb) | (sw) | (slli) | (srai) | (auipc_wenb) | (ori) | (andi) | (srli) | (xori) | (sltui) | (slti) | (lbu) | (lhu) | (jalr) | (lw);
+    assign rs2_imm_sel = (lui_enb) | (jal) | (lb) | (lh) |(addi) | (sh) | (sb) | (sw) | (slli) | (srai) | (auipc_wenb) | (ori) | (andi) | (srli) | (xori) | (sltui) | (slti) | (lbu) | (lhu) | (jalr) | (lw) | (jalreverse);
     // Select bit for mux
   assign in_to_pr = ~(jal | jalr | branch_enb);
     always @(*) 
     begin
-      casez({branch_enb, jalr, jal, in_to_pr})
+      casez({branch_enb, jalr, {jal | jalreverse}, in_to_pr})
     		4'b1??? : sel_bit_mux = 2'b11;
     		4'b01?? : sel_bit_mux = 2'b10;
     		4'b001? : sel_bit_mux = 2'b01;
