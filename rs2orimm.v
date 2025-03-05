@@ -1,4 +1,4 @@
-module rrs2orimm(
+module rs2orimm(
 	input [31:0] rs2, imm,
 	input select,
 	output reg [31:0] dataB
