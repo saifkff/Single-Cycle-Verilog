@@ -263,11 +263,12 @@ module immediate_generator(
       7'b0010011: sel = 4'b0000; // I-type
       7'b0100011: sel = 4'b0001; // S-type
       7'b1100011: sel = 4'b0010; // B-type
-      7'b0110111: sel = 4'b0011; // U-type (AUIPC)
+      7'b0110111: sel = 4'b0011; // U-type (LUI)
       7'b1101111: sel = 4'b0100; // J-type (JAL)
       7'b0110011: sel = 4'b0101; // R-type
       7'b0000011: sel = 4'b0110; // I-type (Load)
       7'b1100111: sel = 4'b0111; // JALR (I-type format)
+      7'b0010111: sel = 4'b0011; // U-type (AUIPC)
       default: sel = 4'b1111; // Default case
     endcase
   end
@@ -434,7 +435,7 @@ module rs1_plus_imm(
 	input [31:0] rs1, imm_input,
 	output reg [31:0] rs1_plus_im
 );
-	assign rs1_plus_im = rs1+imm_input;
+	assign rs1_plus_im = rs1+imm_input+4;
 endmodule
 module rs2orimm(
 	input [31:0] rs2, imm,
