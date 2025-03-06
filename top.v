@@ -64,7 +64,7 @@ module control_unit (
     output reg [3:0] sel,
     output reg [1:0] sel_bit_mux,
     output addr, sub, sllr, sltr, sltur, xorr, srlr, srar, orr, andr,
-    output addi, slli, slti, sltui, xori, srli, srai, ori, andi,
+    output addi,addi2, slli, slti, sltui, xori, srli, srai, ori, andi,
     output sw, sh, sb, lb, lh, lw, lbu, lhu,
     output jal, jalr,jalreverse,
     output beq, bne, blt, bge, bltu, bgeu,
@@ -97,6 +97,7 @@ module control_unit (
     assign andr = (~i0)&(~i1)&(i2)&(i3)&(~i4)&(i5)&(i6)&(i7)&(~i8);
     // I_Type
     assign addi = (~i0)&(~i1)&(i2)&(~i3)&(~i4)&(~i5)&(~i6)&(~i7)&(~i8);
+  assign addi2 = (~i0)&(~i1)&(i2)&(~i3)&(~i4)&(~i5)&(~i6)&(~i7)&(i8);
     assign slli = (~i0)&(~i1)&(i2)&(~i3)&(~i4)&(i5)&(~i6)&(~i7)&(~i8); 
     assign slti = (~i0)&(~i1)&(i2)&(~i3)&(~i4)&(~i5)&(i6)&(~i7)&(~i8);
     assign sltui = (~i0)&(~i1)&(i2)&(~i3)&(~i4)&(i5)&(i6)&(~i7)&(~i8);
@@ -151,8 +152,8 @@ module control_unit (
     assign sel = {out0, out1, out2, out3};
 
     // write enable and rs2 immediate selection
-    assign wenb = (lw) | (jal) | (lh) | (lb) | (addr) | (sub) | (srar) | (sllr) | (orr) | (andr) | (sltur) | (sltr) | (srai) | (xorr) | (srlr) | (andi) | (auipc_wenb) | (ori) | (xori) | (sltui) | (srli) | (slli) | (addi) | (slti) | (sb) | (sh) | (sw) | (lbu) | (lhu) | (jalr) | (lui_enb);
-    assign rs2_imm_sel = (lui_enb) | (jal) | (lb) | (lh) |(addi) | (sh) | (sb) | (sw) | (slli) | (srai) | (auipc_wenb) | (ori) | (andi) | (srli) | (xori) | (sltui) | (slti) | (lbu) | (lhu) | (jalr) | (lw) | (jalreverse);
+    assign wenb = (lw) | (jal) | (lh) | (lb) | (addr) | (sub) | (srar) | (sllr) | (orr) | (andr) | (sltur) | (sltr) | (srai) | (xorr) | (srlr) | (andi) | (auipc_wenb) | (ori) | (xori) | (sltui) | (srli) | (slli) | (addi) | (slti) | (sb) | (sh) | (sw) | (lbu) | (lhu) | (jalr) | (lui_enb) | (addi2);
+    assign rs2_imm_sel = (lui_enb) | (jal) | (lb) | (lh) |(addi) | (sh) | (sb) | (sw) | (slli) | (srai) | (auipc_wenb) | (ori) | (andi) | (srli) | (xori) | (sltui) | (slti) | (lbu) | (lhu) | (jalr) | (lw) | (jalreverse) | (addi2);
     // Select bit for mux
   assign in_to_pr = ~(jal | jalr | branch_enb);
     always @(*) 
@@ -262,7 +263,7 @@ module immediate_generator(
       7'b0010011: sel = 4'b0000; // I-type
       7'b0100011: sel = 4'b0001; // S-type
       7'b1100011: sel = 4'b0010; // B-type
-      7'b0010111: sel = 4'b0011; // U-type (AUIPC)
+      7'b0110111: sel = 4'b0011; // U-type (AUIPC)
       7'b1101111: sel = 4'b0100; // J-type (JAL)
       7'b0110011: sel = 4'b0101; // R-type
       7'b0000011: sel = 4'b0110; // I-type (Load)
