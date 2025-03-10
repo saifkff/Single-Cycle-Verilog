@@ -59,6 +59,7 @@ module top_tb;
     .out(out_1)
   );
  control_unit control_inst (
+    .branch_taken(branch_taken),
    		.addr(addr),
     .sub(sub),
     .sllr(sllr),
@@ -191,11 +192,11 @@ module top_tb;
     rst = 1;
     enable=1;
     #10 rst = 0;
-    #100;
+    #100
     $finish;
   end
   initial begin
-    $monitor("Time: %t | PC: %d | Instruction: %h | rs1: %d | rs2: %d | rdi: %d | Imm: %h | Sel: %b | ALU Out: %h | Branch Taken: %b | Reg1: %h | Reg2: %h | sel_bit_mux: %b | wenb: %b | rs2_imm_sel: %b | rd_data: %d", 
-                $time, uut.PC.pc_out, uut.IM.instruction, rs1, rs2, rdi, imm, sel_imm, alu_out, branch_taken, data1, data2, sel_bit_mux, wenb, rs2_imm_sel,outputt);
+    $monitor("PC: %d | Instruction: %h | rs1: %d | rs2: %d | rdi: %d | Imm: %d| ALU Out: %d | Branch Taken: %b | Reg1: %d | Reg2: %d", 
+                 uut.PC.pc_out, uut.IM.instruction, rs1, rs2, rdi, imm, alu_out, branch_taken, data1, data2);
   end
 endmodule

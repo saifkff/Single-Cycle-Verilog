@@ -61,6 +61,7 @@ module alu(
 endmodule
 module control_unit (
   input [31:0] instruction,
+  input wire branch_taken,
     output reg [3:0] sel,
     output reg [1:0] sel_bit_mux,
     output addr, sub, sllr, sltr, sltur, xorr, srlr, srar, orr, andr,
@@ -118,6 +119,7 @@ module control_unit (
     // load enable 
     assign load_enb = (lb) | (lh) | (lw) | (lbu) | (lhu);
     //Jump instructions
+
     assign jal = (i0)&(i1)&(~i2)&(i3)&(i4)&(~i5)&(~i6)&(~i7)&(~i8);
   	assign jalreverse = (i0)&(i1)&(~i2)&(i3)&(i4)&(i5)&(i6)&(i7)&(i8);
     assign jalr = (i0)&(~i1)&(~i2)&(i3)&(i4)&(~i5)&(~i6)&(~i7)&(~i8);
@@ -145,23 +147,25 @@ module control_unit (
     assign sra = (srar) | (srai);
     assign orrr = (orr) | (ori);
     assign andd = (andr) | (andi);
-      assign out0 = (sll) | (sltu) | (srl) | (sra) | (andd) | (beq) | (bne) | (blt) | (bge) | (bltu) | (bgeu);
-  assign out1 = (slt) | (sltu) | (orrr) | (andd) | (blt)  | (bge) | (bltu) | (bgeu);
-  assign out2 = (xorrr) | (srl) | (sra) | (orrr) | (andd) | (beq)  | (bne) | (bltu) | (bgeu);
-  assign out3 = (sub) | (sra) | (bne)  | (bge) | (bgeu);
-    assign sel = {out0, out1, out2, out3};
+      assign out0 = (sub) | (sltu) | (srl) | (sra) | (beq) | (bne) | (blt) | (bge) | (bltu) | (bgeu);
+  assign out1 = (xorrr) | (slt) | (sltu) | (orrr) | (andd) | (blt)  | (bge) | (bltu) | (bgeu);
+  assign out2 =  (srl) | (orrr) | (andd) | (beq)  | (bne) | (bltu) | (bgeu);
+  assign out3 =  (sra) | (bne)  | (bge) | (bgeu) | (andd) | (sll) | (srl);
+    always @(*) begin
+        sel = {out0, out1, out2, out3};
+     end 
 
     // write enable and rs2 immediate selection
     assign wenb = (lw) | (jal) | (lh) | (lb) | (addr) | (sub) | (srar) | (sllr) | (orr) | (andr) | (sltur) | (sltr) | (srai) | (xorr) | (srlr) | (andi) | (auipc_wenb) | (ori) | (xori) | (sltui) | (srli) | (slli) | (addi) | (slti) | (sb) | (sh) | (sw) | (lbu) | (lhu) | (jalr) | (lui_enb) | (addi2);
     assign rs2_imm_sel = (lui_enb) | (jal) | (lb) | (lh) |(addi) | (sh) | (sb) | (sw) | (slli) | (srai) | (auipc_wenb) | (ori) | (andi) | (srli) | (xori) | (sltui) | (slti) | (lbu) | (lhu) | (jalr) | (lw) | (jalreverse) | (addi2);
     // Select bit for mux
-  assign in_to_pr = ~(jal | jalr | branch_enb);
+  assign in_to_pr = ~(jal | jalr | branch_taken);
     always @(*) 
     begin
-      casez({branch_enb, jalr, {jal | jalreverse}, in_to_pr})
-    		4'b1??? : sel_bit_mux = 2'b11;
-    		4'b01?? : sel_bit_mux = 2'b10;
-    		4'b001? : sel_bit_mux = 2'b01;
+      casez({branch_taken, jalr, {jal | jalreverse}, in_to_pr})
+    		4'b1000 : sel_bit_mux = 2'b11;
+    		4'b0100 : sel_bit_mux = 2'b10;
+    		4'b0010 : sel_bit_mux = 2'b01;
     		4'b0001 : sel_bit_mux = 2'b00;
     	endcase
     end
@@ -176,7 +180,7 @@ module data_mem(
     input [31:0] write_data,
     output reg [31:0] read_data
 );
-  reg [7:0] memory [0:127];
+  reg [7:0] memory [0:4096];
 
     
     always @(*) begin
@@ -291,7 +295,7 @@ module instruction_mem (
     input wire [31:0] addr,
     output wire [31:0] instruction
 );
-  reg [31:0] memory [0:127];
+  reg [31:0] memory [0:4096];
 
     initial begin
         $readmemh("instructions.hex", memory); 
@@ -414,14 +418,14 @@ module regfile (
     input [4:0] rs1, rs2, rd_select,
   	output reg [31:0] data_out1, data_out2
 );
-    reg [31:0] registers [31:0]; 
+    reg [31:0] registers [31:0];
+    integer i; 
     always @(*) begin
         data_out1 = (rs1 == 0) ? 32'b0 : registers[rs1];
         data_out2 = (rs2 == 0) ? 32'b0 : registers[rs2];
     end    
     always @(posedge clk or posedge reset) begin
         if (reset) begin
-            integer i;
             for (i = 0; i < 32; i = i + 1)
                 registers[i] <= 32'b0;
         end
@@ -435,7 +439,9 @@ module rs1_plus_imm(
 	input [31:0] rs1, imm_input,
 	output reg [31:0] rs1_plus_im
 );
-	assign rs1_plus_im = rs1+imm_input+4;
+	always @(*) begin 
+        rs1_plus_im = rs1+imm_input+4;
+    end 
 endmodule
 module rs2orimm(
 	input [31:0] rs2, imm,
