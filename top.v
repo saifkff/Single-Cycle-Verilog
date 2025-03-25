@@ -148,8 +148,8 @@ module control_unit (
     assign orrr = (orr) | (ori);
     assign andd = (andr) | (andi);
       assign out0 = (sub) | (sltu) | (srl) | (sra) | (beq) | (bne) | (blt) | (bge) | (bltu) | (bgeu);
-  assign out1 = (xorrr) | (slt) | (sltu) | (orrr) | (andd) | (blt)  | (bge) | (bltu) | (bgeu);
-  assign out2 =  (srl) | (orrr) | (andd) | (beq)  | (bne) | (bltu) | (bgeu);
+  assign out1 = (xorrr) | (sltu) | (orrr) | (andd) | (blt)  | (bge) | (bltu) | (bgeu);
+  assign out2 =  (srl) | (orrr) | (andd) | (beq)  | (bne) | (bltu) | (bgeu) | (slt);
   assign out3 =  (sra) | (bne)  | (bge) | (bgeu) | (andd) | (sll) | (srl);
     always @(*) begin
         sel = {out0, out1, out2, out3};
