@@ -197,6 +197,6 @@ module top_tb;
   end
   initial begin
     $monitor("PC: %d | Instruction: %h | rs1: %d | rs2: %d | rdi: %d | Imm: %d| ALU Out: %d | Branch Taken: %b | Reg1: %d | Reg2: %d | RDI Result: %d", 
-                 uut.PC.pc_out, uut.IM.instruction, rs1, rs2, rdi, imm, alu_out, branch_taken, data1, data2, alu_out);
+                 uut.PC.pc_out, uut.IM.instruction, rs1, rs2, rdi, imm, alu_out, branch_taken, data1, data2, outputt);
   end
 endmodule
